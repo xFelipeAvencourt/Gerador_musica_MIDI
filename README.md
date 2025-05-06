@@ -1,6 +1,31 @@
-Comando: git add . 
-Descrição: adiciona todos os arquivos modificados ao índice para serem comitados.
-Comando: git commit -m "mensagem" 
-Descrição: cria um commit com a mensagem que você colocar entre as aspas.
-Comando: git push
-Descrição: Envia os commits locais para o repositório remoto no GitHub.
+# Trabalho final TCP
+
+## Como rodar o projeto?
+
+Recomendamos criar um ambiente virtual para rodar a aplicação, como requisito basta ter python instalado na sua máquina.
+
+Crie o ambiente virtual
+
+```sh
+python -m venv nome_do_seu_ambiente
+```
+
+Acesse o ambiente virtual
+
+Windows
+```sh
+nome_do_seu_ambiente\Scripts\activate
+```
+
+Linux
+```sh
+source nome_do_seu_ambiente/bin/activate
+```
+
+## Dependências
+
+Faça a instalação utilizando o gerenciador de pacotes pip.
+
+```sh
+pip install -r requirements.txt
+```
