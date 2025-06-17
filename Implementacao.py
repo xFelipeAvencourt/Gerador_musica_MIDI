@@ -1,7 +1,8 @@
 #BIBLIOTECAS
-import pygame
+import pygame.midi
 import time
 import random
+from midiutil.MidiFile import MIDIFile
 
 #################################################################################
 # Inicializações: 
@@ -26,14 +27,15 @@ VOL_MAX = 100
 OITAVA_MAX = 8
 BPM_MAX = 240
 uBPM = 80 # unidades BPM
+uMIDI = 12 # unidades P/ oitava
 
 
 
 #INSTRUMENTOS MIDI
 PIANO = 0 
-BANDONEON = '!' # 24 MID
-AGOGE = ',' # 114 MID
-TEL_TOCANDO = 125 # TEL TOCANDO MID
+BANDONEON = '!' # 24 MIDI
+AGOGE = ',' # 114 MIDI
+TEL_TOCANDO = 125 # TEL TOCANDO MIDI
 
 
 # TESTES
@@ -48,21 +50,24 @@ class MusicMapper:
         self.instrumentos = PIANO  # instrumento padrão (piano)
         self.oitava = OITAVA_DEFAULT
         self.volume = VOL_DEFAULT
-        self.current_octave = OITAVA_DEFAULT
-        self.current_instrumento = PIANO  # instrumento padrão (piano)
-        self.last_char = None
         self.BPM = BPM_DEFAULT
+        self.current_instrumento = PIANO  # instrumento padrão (piano)
+        self.current_octave = OITAVA_DEFAULT
+        self.current_volume = VOL_DEFAULT
+        self.current_BPM = BPM_DEFAULT
+        self.last_char = None
+        
 
 
-        # Mapeamento de letras maiúsculas para notas (A-H)
+        # Mapeamento de letras maiúsculas para notas MIDI - Pygame
         self.NOTAS = {
-            'A': 'A',
-            'B': 'B',
-            'C': 'C',
-            'D': 'D',
-            'E': 'E',
-            'F': 'F',
-            'G': 'G'
+            'A': 9,
+            'B': 11,
+            'C': 0,
+            'D': 2,
+            'E': 4,
+            'F': 5,
+            'G': 7
         }
 
         # instrumentos MIDI pré-definidos
@@ -73,7 +78,6 @@ class MusicMapper:
         }
 
     def mapeamentoDaMusica(self, text):
-        """Mapeia um caractere para uma lista de ações musicais."""
         executar = []
         i = 0
         length = len(text)
@@ -92,13 +96,14 @@ class MusicMapper:
             # Verificar BPM+
             if char == 'B' and i + 3 < length and text[i:i+4] == 'BPM+':
                 acao['tipo'] = 'mudar_bpm'
-                acao['mudar_BPM'] = min(self.BPM + uBPM, BPM_MAX)
+                self.current_BPM = min(self.current_BPM + uBPM, BPM_MAX)
+                acao['mudar_BPM'] = self.current_BPM
                 i += 3  # Pula os 3 caracteres ('BPM+') + o padrao (no final)
 
             # A-G ou a-g viram notas
             elif char in self.NOTAS or char.upper() in self.NOTAS:
                 acao['tipo'] = 'tocar_nota'
-                acao['nota'] = self.NOTAS[char.upper()] + str(self.current_octave)
+                acao['nota'] = self.NOTAS[char.upper()] + (self.current_octave * uMIDI)
             
             # ESPAÇO: PAUSA/SILÊNCIO
             elif char == SPACE:
@@ -107,18 +112,20 @@ class MusicMapper:
             # MAIS: Dobra o volume
             elif char == PLUS:
                 acao['tipo'] = 'mudar_volume'
-                acao['mudar_volume'] = min(self.volume * 2, VOL_MAX)
+                self.current_volume = max(self.volume * 2, VOL_MAX)
+                acao['mudar_volume'] = self.current_volume
                 
             # Menos: Voltar ao volume Default
             elif char == MINUS:
                 acao['tipo'] = 'mudar_volume'
+                self.current_volume = VOL_DEFAULT
                 acao['mudar_volume'] = VOL_DEFAULT
 
             # i,I,o,O,u,U: se caractere anterior era nota, repete; else tel_tocando (125)
             elif char in LET_VOGAL or char.upper() in LET_VOGAL:
                 if self.last_char and self.last_char.upper() in self.NOTAS:
                     acao['tipo'] = 'tocar_nota'
-                    acao['nota'] = self.NOTAS[self.last_char.upper()] + str(self.current_octave)
+                    acao['nota'] = self.NOTAS[self.last_char.upper()] + (self.current_octave * uMIDI)
                 else:
                     acao['tipo'] = 'tocar_nota'
                     acao['nota'] = TEL_TOCANDO
@@ -128,20 +135,22 @@ class MusicMapper:
                 next_char = text[i + 1]
                 if next_char == '+':    
                     acao['tipo'] = 'mudar_oitava'
-                    acao['mudar_oitava'] = min(self.current_octave + 1, OITAVA_MAX)
+                    self.current_octave = min(self.current_octave + 1, OITAVA_MAX)
+                    acao['mudar_oitava'] = self.current_octave
                     i += 1
                 
                 elif next_char == '-':
                     acao['tipo'] = 'mudar_oitava'
-                    acao['mudar_oitava'] = max(self.current_octave - 1, 0)
+                    self.current_octave = max(self.current_octave - 1, OITAVA_MAX)
+                    acao['mudar_oitava'] = self.current_octave
                     i += 1
 
             # '?': Toca uma nota aleatória (A-G)
             elif char == '?':
                 random_nota = random.choice(list(self.NOTAS.values()))
-                random_oitava = random.randint(1, 7)
+                random_oitava = random.randint(1, OITAVA_MAX-1)
                 acao['tipo'] = 'tocar_nota'
-                acao['nota'] = random_nota + str(random_oitava)
+                acao['nota'] = random_nota + (random_oitava * uMIDI)
             
             # ';': Atribui um BPM aleatório
             elif char == ';':
@@ -172,10 +181,14 @@ class MusicMapper:
             else:
                 if self.last_char and self.last_char.upper() in self.NOTAS:
                     acao['tipo'] = 'tocar_nota'
-                    acao['nota'] = self.NOTAS[self.last_char.upper()] + str(self.current_octave)
+                    acao['nota'] = self.NOTAS[self.last_char.upper()] + (self.current_octave * uMIDI)
                 else:
                     acao['tipo'] = 'pausa'
 
+            if acao['tipo'] == 'tocar_nota' and acao['nota']:
+                gerar_MIDI(acao,self)
+
+    
             executar.append(acao)            
             self.last_char = text[i]
             i += 1
@@ -189,20 +202,21 @@ class TextToMusicConverter:
         pygame.mixer.init()
         self.music_mapper = MusicMapper()
         self.bpm = BPM_DEFAULT
-        self.MID_exe = None
+        self.MIDI_exe = None
 
     def _pausa(self):
         print("Pausa")
 
     def ConverterMusica(self, text):
-        self.MID_exe = self.music_mapper.mapeamentoDaMusica(text)
-        string_acoes = gerar_string_acoes(self.MID_exe)
-        Arquivo('MID_gerado.txt', 'w', string_acoes)
+        self.MIDI_exe = self.music_mapper.mapeamentoDaMusica(text)
+        string_acoes = gerar_string_acoes(self.MIDI_exe)
+        Arquivo('MIDI_gerado.txt', 'w', string_acoes)
+        #Salvar_MIDI()
         print("Musica convertida com sucesso!\n\n")
         
-    def Play_MID(self):
+    def Play_MIDI(self):
 
-        for action in self.MID_exe:
+        for action in self.MIDI_exe:
             if action['tipo'] == 'tocar_nota':
                 self._tocar_nota(action['nota'])
             elif action['tipo'] == 'pausa':
@@ -301,6 +315,26 @@ def gerar_string_acoes(music_actions):
     
     return "\n".join(linhas)
 
+def gerar_MIDI(acao, info):
+    if not hasattr(gerar_MIDI, "midi"):
+        # Inicializa o MIDIFile e configura o tempo apenas na primeira chamada
+        gerar_MIDI.midi = MIDIFile(1)  # Uma única trilha
+        gerar_MIDI.midi.addTempo(0, 0, BPM_DEFAULT)
+        gerar_MIDI.canal = 0
+
+    nota = int(acao['nota'])
+    volume = info.volume
+    oitava = info.current_octave
+    gerar_MIDI.midi.addNote(0, gerar_MIDI.canal, nota + (oitava * 12), 0, 1, volume)
+    
+    # Atualiza as variáveis globais com base nas informações fornecidas
+    gerar_MIDI.canal = info.current_instrumento
+
+def Salvar_MIDI():
+    with open("output.midi", "wb") as arquivo_midi:
+        gerar_MIDI.midi.writeFile(arquivo_midi)
+    print("Arquivo MIDI gerado com sucesso!")
+
 #input_file = input("Digite o nome do arquivo: ")
 print("LENDO O ARQUIVO:")
 Musica_Text = Arquivo('Exorcista.txt')
@@ -308,4 +342,4 @@ Musica_Text = Arquivo('Exorcista.txt')
 print("Convertendo musica!")
 Musica = TextToMusicConverter()
 Musica.ConverterMusica(Musica_Text)
-Musica.Play_MID()
+Musica.Play_MIDI()
