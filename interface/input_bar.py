@@ -1,9 +1,12 @@
 import tkinter as tk
 import customtkinter as ctk
+from PIL import Image, ImageTk
 
 class InputBar:
     def __init__(self, parent, controller):
         self.controller = controller
+        self.is_playing = False
+        self.parent = parent  
 
         container = tk.Frame(parent, bg="white")
         container.place(relx=0.5, rely=0.50, anchor="center")
@@ -11,27 +14,56 @@ class InputBar:
         self.entry = ctk.CTkEntry(
             container,
             placeholder_text="Insira o texto aqui...",
-            corner_radius=20,
+            corner_radius=40,
             width=400,
-            height=35,
+            height=56,
             fg_color="#F5F5F5",
             text_color="black",
             border_width=0
         )
         self.entry.pack(side=tk.LEFT)
 
-        self.button = ctk.CTkButton(
+        # Botão PLAY
+        play_img = Image.open("assets/play.png").resize((105, 56))
+        self.play_img_tk = ImageTk.PhotoImage(play_img)
+        self.play_button = tk.Button(
             container,
-            text="PLAY",
-            corner_radius=20,
-            command=self.on_click,
-            fg_color="#CCEDFF",
-            text_color="#00A3FF",
-            width=100,
-            height=35
+            image=self.play_img_tk,
+            bd=0,
+            bg="white",
+            activebackground="white",
+            command=self.start_play,
+            cursor="hand2"
         )
-        self.button.pack(side=tk.LEFT)
+        self.play_button.pack(side=tk.LEFT)
+        
+        # Botão reproduzindo 
+        pause_img = Image.open("assets/pause.png").resize((234, 48))
+        self.pause_img_tk = ImageTk.PhotoImage(pause_img)
+        self.pause_button = tk.Button(
+            parent,
+            image=self.pause_img_tk,
+            bd=0,
+            bg="white",
+            activebackground="white",
+            command=self.stop_play,
+            cursor="hand2"
+        )
 
-    def on_click(self):
+    def start_play(self):
         texto = self.entry.get()
-        self.controller.buscar(texto)
+        if texto.strip(): 
+            self.pause_button.place(relx=0.5, rely=0.9, anchor="center")
+            self.is_playing = True
+            # todo: Implementar a lógica para iniciar a reprodução
+            print("Reprodução iniciada")
+            self.controller.buscar(texto)
+    
+    def stop_play(self):
+        self.pause_button.place_forget()
+        self.is_playing = False
+        # todo: Implementar a lógica para parar a reprodução
+        print("Reprodução parada")
+    
+    def on_click(self):
+        self.start_play()
