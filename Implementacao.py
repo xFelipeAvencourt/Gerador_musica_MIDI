@@ -165,7 +165,7 @@ class TextToMusicConverter:
         
         instrumento = self.music_mapper.current_instrumento
         volume = self.music_mapper.current_volume
-        canal = 0  # canal fixo e seguro
+        canal = 0  
 
         print(f"[DEBUG] Tocando nota={nota}, instrumento={instrumento}, volume={volume}, bpm={self.bpm}")
     

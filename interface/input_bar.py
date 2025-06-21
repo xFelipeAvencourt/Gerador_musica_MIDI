@@ -1,5 +1,3 @@
-# interface_integrada.py (Integração com TextToMusicConverter)
-
 import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
@@ -14,13 +12,12 @@ class InputBar:
         self.is_playing = False
         self.parent = parent
 
-        # Container principal para entrada + botão "X"
         container = tk.Frame(parent, bg="white")
         container.place(relx=0.5, rely=0.50, anchor="center")
 
         input_frame = tk.Frame(container, bg="white")       
         input_frame.pack(side=tk.LEFT)
-        # Exemplo de inicialização com todas as notas usadas
+        
 
 
         # Campo de entrada
@@ -36,11 +33,9 @@ class InputBar:
             )
         self.entry.pack(side=tk.LEFT)
 
-        # Botão "X" azul ao lado
-        # Botão "X" azul sobreposto no canto direito do CTkEntry
         self.clear_button = tk.Button(
         container,
-        text="✕",  # ícone mais bonito que "X"
+        text="✕",  
         font=("Arial", 14),
         command=self.limpar_entrada,
         bd=0,
