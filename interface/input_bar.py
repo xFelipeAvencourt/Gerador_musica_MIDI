@@ -1,27 +1,58 @@
+# interface_integrada.py (Integração com TextToMusicConverter)
+
 import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
+from Implementacao import TextToMusicConverter
+import threading
+import time
+
 
 class InputBar:
     def __init__(self, parent, controller):
         self.controller = controller
         self.is_playing = False
-        self.parent = parent  
+        self.parent = parent
 
+        # Container principal para entrada + botão "X"
         container = tk.Frame(parent, bg="white")
         container.place(relx=0.5, rely=0.50, anchor="center")
 
+        input_frame = tk.Frame(container, bg="white")       
+        input_frame.pack(side=tk.LEFT)
+        # Exemplo de inicialização com todas as notas usadas
+
+
+        # Campo de entrada
         self.entry = ctk.CTkEntry(
-            container,
-            placeholder_text="Insira o texto aqui...",
-            corner_radius=40,
-            width=400,
-            height=56,
-            fg_color="#F5F5F5",
-            text_color="black",
-            border_width=0
-        )
+        input_frame,
+        placeholder_text="Insira o texto aqui...",
+        corner_radius=40,
+        width=400,
+        height=56,
+        fg_color="#F5F5F5",
+        text_color="black",
+        border_width=0  
+            )
         self.entry.pack(side=tk.LEFT)
+
+        # Botão "X" azul ao lado
+        # Botão "X" azul sobreposto no canto direito do CTkEntry
+        self.clear_button = tk.Button(
+        container,
+        text="✕",  # ícone mais bonito que "X"
+        font=("Arial", 14),
+        command=self.limpar_entrada,
+        bd=0,
+        bg="#F5F5F5",
+        activebackground="#F5F5F5",
+        fg="#2563eb",
+        cursor="hand2"
+     )
+        self.clear_button.place(relx=0.82, rely=0.5, anchor="center")
+
+
+
 
         # Botão PLAY
         play_img = Image.open("assets/play.png").resize((105, 56))
@@ -36,8 +67,8 @@ class InputBar:
             cursor="hand2"
         )
         self.play_button.pack(side=tk.LEFT)
-        
-        # Botão reproduzindo 
+
+        # Botão PAUSE
         pause_img = Image.open("assets/pause.png").resize((234, 48))
         self.pause_img_tk = ImageTk.PhotoImage(pause_img)
         self.pause_button = tk.Button(
@@ -49,21 +80,46 @@ class InputBar:
             command=self.stop_play,
             cursor="hand2"
         )
+        self.pause_button.place(relx=0.5, rely=0.9, anchor="center")
+
 
     def start_play(self):
         texto = self.entry.get()
-        if texto.strip(): 
-            self.pause_button.place(relx=0.5, rely=0.9, anchor="center")
+        print(f"[DEBUG] Texto inserido: '{texto}'")
+        if texto.strip():
             self.is_playing = True
-            # todo: Implementar a lógica para iniciar a reprodução
-            print("Reprodução iniciada")
+            self.pause_button.place(relx=0.5, rely=0.9, anchor="center")
+
+        try:
+            config = self.controller.get_configuracoes()
             self.controller.buscar(texto)
-    
+            musica = TextToMusicConverter(
+                bpm=config["bpm"],
+                instrumento=config["instrumento"]
+            )
+
+            def tocar():
+                 musica.ConverterMusica(texto)
+                 if self.is_playing:
+                        musica.Play_MIDI()
+                        print("Reprodução iniciada ou interrompida")
+
+            threading.Thread(target=tocar, daemon=True).start()
+
+        except Exception as e:
+            print(f"[Erro] Falha ao executar: {e}")
+
+
+
     def stop_play(self):
-        self.pause_button.place_forget()
         self.is_playing = False
-        # todo: Implementar a lógica para parar a reprodução
+        self.pause_button.place_forget()
         print("Reprodução parada")
-    
+
+
+
     def on_click(self):
         self.start_play()
+    def limpar_entrada(self):
+        self.entry.delete(0, 'end')
+
