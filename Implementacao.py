@@ -143,7 +143,6 @@ class TextToMusicConverter:
         print(f"[DEBUG] ConverterMusica recebeu: '{text}'")
         string_acoes = gerar_string_acoes(self.MIDI_exe)
         Arquivo('MIDI_gerado.txt', 'w', string_acoes)
-        Salvar_MIDI()
         print("Música convertida com sucesso!")
 
     def Play_MIDI(self):
@@ -219,10 +218,14 @@ def gerar_MIDI(acao, info):
     gerar_MIDI.midi.addNote(0, 0, nota + (oitava * 12), 0, 1, volume)
     gerar_MIDI.canal = 0
 
-def Salvar_MIDI():
+def Salvar_MIDI(texto, caminho_arquivo):
     try:
-        with open("output.midi", "wb") as f:
-            gerar_MIDI.midi.writeFile(f)
-        print("Arquivo MIDI gerado com sucesso!")
+        gerar_MIDI.midi = MIDIFile(1)
+        gerar_MIDI.midi.addTempo(0, 0, BPM_DEFAULT)
+        mapper = MusicMapper()
+        mapper.mapeamentoDaMusica(texto)  
+        if hasattr(gerar_MIDI, "midi"):
+            with open(caminho_arquivo, "wb") as f:
+                gerar_MIDI.midi.writeFile(f)
     except Exception as e:
-        print(f"[Erro] Falha ao salvar MIDI: {e}")
+        print(f"[ERRO] Falha ao salvar MIDI: {e}")
