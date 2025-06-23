@@ -1,15 +1,3 @@
-mudar_BPM:None            | mudar_BPM:None            | mudar_BPM:None           
-mudar_BPM:None            | mudar_BPM:None            | mudar_BPM:None           
-mudar_oitava:None         | tocar_nota:71             | tocar_nota:64            
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-mudar_oitava:None         | tocar_nota:83             | mudar_oitava:None        
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-mudar_oitava:None         | tocar_nota:83             | mudar_oitava:None        
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-tocar_nota:64             | tocar_nota:71             | tocar_nota:64            
-mudar_oitava:None         | tocar_nota:83             | mudar_oitava:None        
-tocar_nota:64            
+tocar_nota:50             | tocar_nota:50             | tocar_nota:57            
+tocar_nota:50             | tocar_nota:50             | tocar_nota:57            
+tocar_nota:50             | tocar_nota:50             | tocar_nota:57            

@@ -18,8 +18,6 @@ class InputBar:
         input_frame = tk.Frame(container, bg="white")       
         input_frame.pack(side=tk.LEFT)
         
-
-
         # Campo de entrada
         self.entry = ctk.CTkEntry(
         input_frame,
@@ -60,24 +58,6 @@ class InputBar:
             cursor="hand2"
         )
         self.play_button.pack(side=tk.LEFT)
-
-        # Botão SAVE
-        try:
-            save_img = Image.open("assets/salvar.png").resize((105, 56))
-            self.save_img_tk = ImageTk.PhotoImage(save_img)
-            self.save_button = tk.Button(
-                container,
-                image=self.save_img_tk,
-                bd=0,
-                bg="white",
-                activebackground="white",
-                command=self.save_midi,
-                cursor="hand2"
-            )
-            self.save_button.pack(side=tk.LEFT)
-        except Exception as e:
-            print(f"[Erro] Falha ao carregar imagem do botão salvar: {e}")
-
 
         # Botão PAUSE
         pause_img = Image.open("assets/pause.png").resize((234, 48))
@@ -130,26 +110,6 @@ class InputBar:
 
     def clear_input(self):
         self.entry.delete(0, tk.END)
-    def limpar_entrada(self):
-        self.entry.delete(0, 'end')
-
-    def save_midi(self):
-        try:
-            from tkinter import filedialog
-            from Implementacao import Salvar_MIDI
-            texto = self.entry.get().strip()
-            if not texto:
-                return
-
-            file_path = filedialog.asksaveasfilename(
-                defaultextension=".mid",
-                filetypes=[("MIDI files", "*.mid")],
-                title="Salvar arquivo MIDI"
-            )
-            if file_path:
-                Salvar_MIDI(texto, file_path)
-        except Exception as e:
-            print(f"[Erro] Falha ao salvar MIDI: {e}")
 
     
 

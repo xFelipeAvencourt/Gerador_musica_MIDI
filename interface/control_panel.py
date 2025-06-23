@@ -10,28 +10,14 @@ class ControlPanel(tk.Frame):
         self.bpm_var = tk.IntVar(value=120)
         self.volume_var = tk.IntVar(value=100)
         
-        self.controls_frame = tk.Frame(self, bg="white")
-        self.controls_frame.pack(pady=20)
+        self.first_line = tk.Frame(self, bg="white")
+        self.first_line.pack(pady=20)
 
-        # Botão de upload
-        upload_img = Image.open("assets/upload.png").resize((234, 48))
-        self.upload_img_tk = ImageTk.PhotoImage(upload_img)
-        self.upload_button = tk.Button(
-            self.controls_frame,
-            image=self.upload_img_tk,
-            bd=0,
-            bg="white",
-            activebackground="white",
-            command=self.upload_file,
-            cursor="hand2"
-        )
-        self.upload_button.pack(side=tk.LEFT, padx=10)
-        
         # Botão BPM
         bpm_img = Image.open("assets/bpm.png").resize((117, 48))
         self.bpm_img_tk = ImageTk.PhotoImage(bpm_img)
         self.bpm_modal_button = tk.Button(
-            self.controls_frame,
+            self.first_line,
             image=self.bpm_img_tk,
             bd=0,
             bg="white",
@@ -41,11 +27,73 @@ class ControlPanel(tk.Frame):
         )
         self.bpm_modal_button.pack(side=tk.LEFT, padx=10)
 
+        # Botão Volume
+        volume_img = Image.open("assets/volume.png").resize((131, 48))
+        self.volume_img_tk = ImageTk.PhotoImage(volume_img)
+        self.volume_modal_button = tk.Button(
+            self.first_line,
+            image=self.volume_img_tk,
+            bd=0,
+            bg="white",
+            activebackground="white",
+            command=self.open_volume_modal,
+            cursor="hand2"
+        )
+        self.volume_modal_button.pack(side=tk.LEFT, padx=10)
+
+        # Botão SAVE
+        try:
+            save_img = Image.open("assets/save.png").resize((131, 48))
+            self.save_img_tk = ImageTk.PhotoImage(save_img)
+            self.save_button = tk.Button(
+                self.first_line,
+                image=self.save_img_tk,
+                bd=0,
+                bg="white",
+                activebackground="white",
+                command=self.save_midi,
+                cursor="hand2"
+            )
+            self.save_button.pack(side=tk.LEFT, padx=10)
+        except Exception as e:
+            print(f"[Erro] Falha ao carregar imagem do botão salvar: {e}")
+
+        self.second_line = tk.Frame(self, bg="white")
+        self.second_line.pack(pady=(10, 0))
+
+        # Botão de recentes
+        recentes_img = Image.open("assets/recentes.png").resize((234, 48))
+        self.recentes_img_tk = ImageTk.PhotoImage(recentes_img)
+        self.recentes_button = tk.Button(
+            self.second_line,
+            image=self.recentes_img_tk,
+            bd=0,
+            bg="white",
+            activebackground="white",
+            command=self.open_recentes_modal,
+            cursor="hand2"
+        )
+        self.recentes_button.pack(side=tk.LEFT, padx=10)
+
+        # Botão de upload (carregar arquivo)
+        upload_img = Image.open("assets/upload.png").resize((234, 48))
+        self.upload_img_tk = ImageTk.PhotoImage(upload_img)
+        self.upload_button = tk.Button(
+            self.second_line,
+            image=self.upload_img_tk,
+            bd=0,
+            bg="white",
+            activebackground="white",
+            command=self.upload_file,
+            cursor="hand2"
+        )
+        self.upload_button.pack(side=tk.LEFT, padx=10)
+
         # Botão de instrumentos
         instrumento_img = Image.open("assets/instrumento.png").resize((234, 48))
         self.instrumento_img_tk = ImageTk.PhotoImage(instrumento_img)
         self.instrument_modal_button = tk.Button(
-            self.controls_frame,
+            self.second_line,
             image=self.instrumento_img_tk,
             bd=0,
             bg="white",
@@ -56,37 +104,6 @@ class ControlPanel(tk.Frame):
         self.instrument_modal_button.pack(side=tk.LEFT, padx=10)
         self.instruments = ["Piano", "Guitarra", "Violino", "Flauta", "Bateria"]
         self.instrument_var = tk.StringVar(value=self.instruments[0])
-
-
-        # Botão de recentes
-        self.recentes_frame = tk.Frame(self, bg="white")
-        self.recentes_frame.pack(pady=(10, 0))
-        recentes_img = Image.open("assets/recentes.png").resize((234, 48))
-        self.recentes_img_tk = ImageTk.PhotoImage(recentes_img)
-        self.recentes_button = tk.Button(
-            self.recentes_frame,
-            image=self.recentes_img_tk,
-            bd=0,
-            bg="white",
-            activebackground="white",
-            command=self.open_recentes_modal,
-            cursor="hand2"
-        )
-        self.recentes_button.pack(side=tk.LEFT, padx=10)
-
-        # Botão Volume
-        volume_img = Image.open("assets/volume.png").resize((234, 48))
-        self.volume_img_tk = ImageTk.PhotoImage(volume_img)
-        self.volume_modal_button = tk.Button(
-            self.recentes_frame,
-            image=self.volume_img_tk,
-            bd=0,
-            bg="white",
-            activebackground="white",
-            command=self.open_volume_modal,
-            cursor="hand2"
-        )
-        self.volume_modal_button.pack(side=tk.LEFT, padx=10)
     
     def update_bpm(self, value):
         # todo: Atualizar o valor do BPM
@@ -194,3 +211,25 @@ class ControlPanel(tk.Frame):
             "bpm": self.bpm_var.get(),
             "instrumento": self.instruments.index(self.instrument_var.get()) * 24
         }
+
+    def save_midi(self):
+        try:
+            from tkinter import filedialog
+            from Implementacao import Salvar_MIDI
+            
+            # Pegar o texto do input_bar através do controller
+            texto = self.controller.get_texto_atual()
+            if not texto or not texto.strip():
+                print("[Aviso] Nenhum texto para salvar")
+                return
+
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".mid",
+                filetypes=[("MIDI files", "*.mid")],
+                title="Salvar arquivo MIDI"
+            )
+            if file_path:
+                Salvar_MIDI(texto, file_path)
+                print(f"[Info] MIDI salvo em: {file_path}")
+        except Exception as e:
+            print(f"[Erro] Falha ao salvar MIDI: {e}")
