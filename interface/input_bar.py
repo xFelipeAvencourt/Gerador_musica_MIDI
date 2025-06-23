@@ -18,8 +18,6 @@ class InputBar:
         input_frame = tk.Frame(container, bg="white")       
         input_frame.pack(side=tk.LEFT)
         
-
-
         # Campo de entrada
         self.entry = ctk.CTkEntry(
         input_frame,
@@ -33,18 +31,19 @@ class InputBar:
             )
         self.entry.pack(side=tk.LEFT)
 
+        # Botão Clear Input
+        clear_img = Image.open("assets/clear.png").resize((20, 20))
+        self.clear_img_tk = ImageTk.PhotoImage(clear_img)
         self.clear_button = tk.Button(
-        container,
-        text="✕",  
-        font=("Arial", 14),
-        command=self.limpar_entrada,
-        bd=0,
-        bg="#F5F5F5",
-        activebackground="#F5F5F5",
-        fg="#2563eb",
-        cursor="hand2"
-     )
-        self.clear_button.place(relx=0.82, rely=0.5, anchor="center")
+            container,
+            image=self.clear_img_tk,
+            bd=0,
+            bg="#F5F5F5",
+            activebackground="#F5F5F5",
+            command=self.clear_input,
+            cursor="hand2"
+        )
+        self.clear_button.place(x=360, y=18)
 
         # Botão PLAY
         play_img = Image.open("assets/play.png").resize((105, 56))
@@ -59,24 +58,6 @@ class InputBar:
             cursor="hand2"
         )
         self.play_button.pack(side=tk.LEFT)
-
-        # Botão SAVE
-        try:
-            save_img = Image.open("assets/salvar.png").resize((105, 56))
-            self.save_img_tk = ImageTk.PhotoImage(save_img)
-            self.save_button = tk.Button(
-                container,
-                image=self.save_img_tk,
-                bd=0,
-                bg="white",
-                activebackground="white",
-                command=self.save_midi,
-                cursor="hand2"
-            )
-            self.save_button.pack(side=tk.LEFT)
-        except Exception as e:
-            print(f"[Erro] Falha ao carregar imagem do botão salvar: {e}")
-
 
         # Botão PAUSE
         pause_img = Image.open("assets/pause.png").resize((234, 48))
@@ -126,26 +107,9 @@ class InputBar:
 
     def on_click(self):
         self.start_play()
-    def limpar_entrada(self):
-        self.entry.delete(0, 'end')
 
-    def save_midi(self):
-        try:
-            from tkinter import filedialog
-            from Implementacao import Salvar_MIDI
-            texto = self.entry.get().strip()
-            if not texto:
-                return
-
-            file_path = filedialog.asksaveasfilename(
-                defaultextension=".mid",
-                filetypes=[("MIDI files", "*.mid")],
-                title="Salvar arquivo MIDI"
-            )
-            if file_path:
-                Salvar_MIDI(texto, file_path)
-        except Exception as e:
-            print(f"[Erro] Falha ao salvar MIDI: {e}")
+    def clear_input(self):
+        self.entry.delete(0, tk.END)
 
     
 

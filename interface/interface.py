@@ -28,6 +28,8 @@ class Interface(tk.Tk):
     def set_texto(self, texto):
         self.input_bar.entry.delete(0, 'end')
         self.input_bar.entry.insert(0, texto.strip())
+    def get_texto_atual(self):
+        return self.input_bar.entry.get()
     def get_configuracoes(self):
         return self.control_panel.get_configuracoes()
     def buscar(self, texto):
