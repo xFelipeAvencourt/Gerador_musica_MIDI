@@ -7,6 +7,7 @@ class ControlPanel(tk.Frame):
         super().__init__(parent, bg="white")
         self.controller = controller
         self.bpm_var = tk.IntVar(value=120)
+        self.volume_var = tk.IntVar(value=100)
         
         self.controls_frame = tk.Frame(self, bg="white")
         self.controls_frame.pack(pady=20)
@@ -70,12 +71,31 @@ class ControlPanel(tk.Frame):
             command=self.open_recentes_modal,
             cursor="hand2"
         )
-        self.recentes_button.pack()
+        self.recentes_button.pack(side=tk.LEFT, padx=10)
+
+        # Botão Volume
+        volume_img = Image.open("assets/volume.png").resize((234, 48))
+        self.volume_img_tk = ImageTk.PhotoImage(volume_img)
+        self.volume_modal_button = tk.Button(
+            self.recentes_frame,
+            image=self.volume_img_tk,
+            bd=0,
+            bg="white",
+            activebackground="white",
+            command=self.open_volume_modal,
+            cursor="hand2"
+        )
+        self.volume_modal_button.pack(side=tk.LEFT, padx=10)
     
     def update_bpm(self, value):
         # todo: Atualizar o valor do BPM
         self.bpm_var.set(int(float(value)))
         print(f"BPM atualizado para: {self.bpm_var.get()}")
+
+    def update_volume(self, value):
+        # todo: Atualizar o valor do Volume
+        self.volume_var.set(int(float(value)))
+        print(f"Volume atualizado para: {self.volume_var.get()}")
 
     def upload_file(self):
         from tkinter import filedialog
@@ -105,6 +125,31 @@ class ControlPanel(tk.Frame):
 
         bpm_value_label = tk.Label(bpm_modal, textvariable=self.bpm_var, bg="white", font=("Arial", 12))
         bpm_value_label.pack()
+
+    def open_volume_modal(self):
+        volume_modal = tk.Toplevel(self)
+        volume_modal.title("Ajustar Volume")
+        volume_modal.geometry("300x120")
+        volume_modal.transient(self)
+        volume_modal.grab_set()
+        volume_modal.configure(bg="white")
+
+        volume_label = tk.Label(volume_modal, text="Volume:", bg="white", font=("Arial", 12))
+        volume_label.pack(pady=(10, 0))
+
+        volume_slider = ttk.Scale(
+            volume_modal,
+            from_=0,
+            to=100,
+            orient=tk.HORIZONTAL,
+            variable=self.volume_var,
+            length=200,
+            command=self.update_volume
+        )
+        volume_slider.pack(pady=10)
+
+        volume_value_label = tk.Label(volume_modal, textvariable=self.volume_var, bg="white", font=("Arial", 12))
+        volume_value_label.pack()
 
     def open_instrument_modal(self):
         modal = tk.Toplevel(self)

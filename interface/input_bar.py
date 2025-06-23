@@ -23,6 +23,20 @@ class InputBar:
         )
         self.entry.pack(side=tk.LEFT)
 
+        # Botão Clear Input
+        clear_img = Image.open("assets/clear.png").resize((20, 20))
+        self.clear_img_tk = ImageTk.PhotoImage(clear_img)
+        self.clear_button = tk.Button(
+            container,
+            image=self.clear_img_tk,
+            bd=0,
+            bg="#F5F5F5",
+            activebackground="#F5F5F5",
+            command=self.clear_input,
+            cursor="hand2"
+        )
+        self.clear_button.place(x=360, y=18)
+
         # Botão PLAY
         play_img = Image.open("assets/play.png").resize((105, 56))
         self.play_img_tk = ImageTk.PhotoImage(play_img)
@@ -36,6 +50,7 @@ class InputBar:
             cursor="hand2"
         )
         self.play_button.pack(side=tk.LEFT)
+
         
         # Botão reproduzindo 
         pause_img = Image.open("assets/pause.png").resize((234, 48))
@@ -67,3 +82,6 @@ class InputBar:
     
     def on_click(self):
         self.start_play()
+
+    def clear_input(self):
+        self.entry.delete(0, tk.END)
