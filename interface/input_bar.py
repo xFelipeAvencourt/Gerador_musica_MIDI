@@ -86,7 +86,9 @@ class InputBar:
             self.controller.buscar(texto)
             musica = TextToMusicConverter(
                 bpm=config["bpm"],
-                instrumento=config["instrumento"]
+                instrumento=config["instrumento"],
+                volume=config["volume"],
+                config_callback=self.controller.get_configuracoes
             )
 
             def tocar():

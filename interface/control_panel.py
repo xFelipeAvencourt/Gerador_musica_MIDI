@@ -209,7 +209,8 @@ class ControlPanel(tk.Frame):
     def get_configuracoes(self):
         return {
             "bpm": self.bpm_var.get(),
-            "instrumento": self.instruments.index(self.instrument_var.get()) * 24
+            "instrumento": self.instruments.index(self.instrument_var.get()) * 24,
+            "volume": self.volume_var.get()
         }
 
     def save_midi(self):
