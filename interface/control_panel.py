@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from tkinter import filedialog
 
 class ControlPanel(tk.Frame):
     def __init__(self, parent, controller):
@@ -98,8 +99,19 @@ class ControlPanel(tk.Frame):
         print(f"Volume atualizado para: {self.volume_var.get()}")
 
     def upload_file(self):
-        from tkinter import filedialog
-        filedialog.askopenfilename(title="Selecione um arquivo para upload")
+    
+        filepath = filedialog.askopenfilename(
+            title="Selecione um arquivo .txt",
+            filetypes=[("Arquivos de Texto", "*.txt")]
+        )
+        if filepath:
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    conteudo = f.read()
+                    print(f"[DEBUG] Conteúdo do arquivo lido: {conteudo[:50]}...")
+                    self.controller.set_texto(conteudo)
+            except Exception as e:
+                print(f"[ERRO] Falha ao ler arquivo: {e}")
 
     def open_bpm_modal(self):
         bpm_modal = tk.Toplevel(self)
@@ -177,3 +189,8 @@ class ControlPanel(tk.Frame):
     def open_recentes_modal(self):
         # todo: Implementar a lógica para o modal de recentes
         print("Botão de recentes clicado!")
+    def get_configuracoes(self):
+        return {
+            "bpm": self.bpm_var.get(),
+            "instrumento": self.instruments.index(self.instrument_var.get()) * 24
+        }
