@@ -13,7 +13,7 @@ class TutorialButton:
             command=self.toggle_tutorial,
             cursor="hand2"
         )
-        self.button.place(x=1600, y=80)
+        self.button.place(relx=0.95, rely=0.05, anchor="ne")
         self.parent = parent
         
         self.tutorial_frame = tk.Frame(
@@ -22,7 +22,7 @@ class TutorialButton:
             width=300,
             height=200
         )
-        self.tutorial_frame.place(x=1600, y=10)
+        self.tutorial_frame.place(relx=0.95, rely=0.15, anchor="ne")
         
         # Texto do tutorial
         self.tutorial_text = tk.Label(
@@ -57,4 +57,4 @@ class TutorialButton:
         if self.tutorial_frame.winfo_ismapped():
             self.tutorial_frame.place_forget()
         else:
-            self.tutorial_frame.place(x=1600, y=150)
+            self.tutorial_frame.place(relx=0.95, rely=0.15, anchor="ne")

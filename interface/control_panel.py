@@ -203,9 +203,9 @@ class ControlPanel(tk.Frame):
         btn_ok = tk.Button(modal, text="OK", command=modal.destroy)
         btn_ok.pack(pady=(0, 10))
 
-    def open_recentes_modal(self):
-        # todo: Implementar a lógica para o modal de recentes
-        print("Botão de recentes clicado!")
+    # def open_recentes_modal(self):
+    #     # todo: Implementar a lógica para o modal de recentes
+    #     print("Botão de recentes clicado!")
     def get_configuracoes(self):
         return {
             "bpm": self.bpm_var.get(),
