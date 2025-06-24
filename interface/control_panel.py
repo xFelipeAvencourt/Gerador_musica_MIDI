@@ -8,7 +8,7 @@ class ControlPanel(tk.Frame):
         super().__init__(parent, bg="white")
         self.controller = controller
         self.bpm_var = tk.IntVar(value=120)
-        self.volume_var = tk.IntVar(value=100)
+        self.volume_var = tk.IntVar(value=50)
         
         self.first_line = tk.Frame(self, bg="white")
         self.first_line.pack(pady=20)
@@ -61,19 +61,19 @@ class ControlPanel(tk.Frame):
         self.second_line = tk.Frame(self, bg="white")
         self.second_line.pack(pady=(10, 0))
 
-        # Botão de recentes
-        recentes_img = Image.open("assets/recentes.png").resize((234, 48))
-        self.recentes_img_tk = ImageTk.PhotoImage(recentes_img)
-        self.recentes_button = tk.Button(
-            self.second_line,
-            image=self.recentes_img_tk,
-            bd=0,
-            bg="white",
-            activebackground="white",
-            command=self.open_recentes_modal,
-            cursor="hand2"
-        )
-        self.recentes_button.pack(side=tk.LEFT, padx=10)
+        # # Botão de recentes
+        # recentes_img = Image.open("assets/recentes.png").resize((234, 48))
+        # self.recentes_img_tk = ImageTk.PhotoImage(recentes_img)
+        # self.recentes_button = tk.Button(
+        #     self.second_line,
+        #     image=self.recentes_img_tk,
+        #     bd=0,
+        #     bg="white",
+        #     activebackground="white",
+        #     command=self.open_recentes_modal,
+        #     cursor="hand2"
+        # )
+        # self.recentes_button.pack(side=tk.LEFT, padx=10)
 
         # Botão de upload (carregar arquivo)
         upload_img = Image.open("assets/upload.png").resize((234, 48))

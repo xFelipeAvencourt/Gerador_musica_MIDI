@@ -1,11 +1,10 @@
-
 import pygame.midi
 import time
 import random
 from midiutil.MidiFile import MIDIFile
 
 
-VOL_DEFAULT = 100
+VOL_DEFAULT = 50
 OITAVA_DEFAULT = 4
 BPM_DEFAULT = 60
 NUM_ACOES = 3
@@ -65,12 +64,12 @@ class MusicMapper:
                 acao['tipo'] = 'pausa'
             elif char == PLUS:
                 acao['tipo'] = 'mudar_volume'
-                self.current_volume = min(self.current_volume * 2, VOL_MAX)
+                self.current_volume = min(self.current_volume + 10, VOL_MAX)
                 acao['mudar_volume'] = self.current_volume
             elif char == MINUS:
                 acao['tipo'] = 'mudar_volume'
-                self.current_volume = VOL_DEFAULT
-                acao['mudar_volume'] = VOL_DEFAULT
+                self.current_volume = max(self.current_volume - 10, 10)
+                acao['mudar_volume'] = self.current_volume
             elif char in LET_VOGAL or char.upper() in LET_VOGAL:
                 if self.last_char and self.last_char.upper() in self.NOTAS:
                     acao['tipo'] = 'tocar_nota'
@@ -95,7 +94,8 @@ class MusicMapper:
                 acao['nota'] = random.choice(list(self.NOTAS.values())) + (random.randint(1, OITAVA_MAX - 1) * uMIDI)
             elif char == ';':
                 acao['tipo'] = 'mudar_BPM'
-                acao['mudar_BPM'] = random.randint(BPM_DEFAULT, BPM_MAX)
+                self.current_BPM = random.randint(BPM_DEFAULT, BPM_MAX)
+                acao['mudar_BPM'] = self.current_BPM
             elif char == NL:
                 acao['tipo'] = 'alterar_instrumento'
                 acao['instrumento'] = random.choice(list(self.instrumentos.values()))
@@ -135,11 +135,13 @@ class TextToMusicConverter:
             raise RuntimeError("Nenhum dispositivo MIDI de saída encontrado.")
 
         self.music_mapper = MusicMapper()
+        self.music_mapper.current_BPM = bpm  
         self.instrumento = instrumento
         self.volume = volume
         self.bpm = bpm
         self.MIDI_exe = None
         self.config_callback = config_callback
+        
     def ConverterMusica(self, text):
         self.MIDI_exe = self.music_mapper.mapeamentoDaMusica(text)
         print(f"[DEBUG] ConverterMusica recebeu: '{text}'")
@@ -152,8 +154,8 @@ class TextToMusicConverter:
             if action['tipo'] == 'tocar_nota':
                 if self.config_callback:
                     config = self.config_callback()
-                    bpm = config['bpm']
-                    volume = config['volume']
+                    bpm = self.bpm  
+                    volume = self.volume  
                     instrumento = config['instrumento']
                     nota = action['nota']
                 else:
