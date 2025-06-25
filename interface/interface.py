@@ -21,7 +21,7 @@ class Interface(tk.Tk):
         self.logo = Logo(self)
         self.input_bar = InputBar(self, self)
         #self.control_panel = ControlPanel(self, controller)
-        self.control_panel = ControlPanel(self, self) 
+        self.control_panel = ControlPanel(self, self.input_bar)
         self.control_panel.place(relx=0.5, rely=0.65, anchor="center")  # Posiciona o painel de controle
         self.tutorial_button = TutorialButton(self, self)
         self.footer = Footer(self)
