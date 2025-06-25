@@ -115,9 +115,10 @@ class MusicMapper:
                 else:
                     acao['tipo'] = 'pausa'
 
-            if acao['tipo'] == 'tocar_nota' and acao['nota'] is not None:
-                gerar_MIDI(acao, self)
-            executar.append(acao)
+            if acao['tipo'] == 'tocar_nota' and acao['nota'] is None:
+                pass  
+            else:
+                executar.append(acao)
             self.last_char = text[i]
             i += 1
         return executar
@@ -228,21 +229,49 @@ def gerar_MIDI(acao, info):
     if not hasattr(gerar_MIDI, "midi"):
         gerar_MIDI.midi = MIDIFile(1)
         gerar_MIDI.midi.addTempo(0, 0, BPM_DEFAULT)
+        gerar_MIDI.tempo_atual = 0
+        gerar_MIDI.instrumento_atual = None  
         gerar_MIDI.canal = 0
     nota = int(acao['nota'])
     volume = info.current_volume
     oitava = info.current_octave
-    gerar_MIDI.midi.addNote(0, 0, nota + (oitava * 12), 0, 1, volume)
-    gerar_MIDI.canal = 0
+    instrumento = info.current_instrumento
+    canal = 0
+    instrumento = getattr(info, "current_instrumento", 0)
+    if gerar_MIDI.instrumento_atual != instrumento:
+        gerar_MIDI.midi.addProgramChange(0, canal, gerar_MIDI.tempo_atual, instrumento)
+        gerar_MIDI.instrumento_atual = instrumento
 
-def Salvar_MIDI(texto, caminho_arquivo):
+    gerar_MIDI.midi.addNote(
+        track=0,
+        channel=canal,
+        pitch=nota + (oitava * 12),
+        time=gerar_MIDI.tempo_atual,
+        duration=1,
+        volume=volume
+    )
+    gerar_MIDI.tempo_atual += 1
+
+def Salvar_MIDI(texto, caminho_arquivo, config):
     try:
+        from midiutil.MidiFile import MIDIFile
         gerar_MIDI.midi = MIDIFile(1)
         gerar_MIDI.midi.addTempo(0, 0, BPM_DEFAULT)
+        gerar_MIDI.tempo_atual = 0
+        gerar_MIDI.instrumento_atual = None  
+        class FakeInfo:
+            def __init__(self):
+                self.current_volume = config["volume"]
+                self.current_octave = OITAVA_DEFAULT 
+                self.current_instrumento = config["instrumento"]
         mapper = MusicMapper()
-        mapper.mapeamentoDaMusica(texto)  
-        if hasattr(gerar_MIDI, "midi"):
-            with open(caminho_arquivo, "wb") as f:
-                gerar_MIDI.midi.writeFile(f)
+        fake_info = FakeInfo()
+        acoes = mapper.mapeamentoDaMusica(texto)
+        for acao in acoes:
+           if acao['tipo'] == 'tocar_nota' and acao['nota'] is not None:
+            gerar_MIDI(acao, fake_info)
+        with open(caminho_arquivo, "wb") as f:
+            gerar_MIDI.midi.writeFile(f)
+        print(f"[SUCESSO] Arquivo MIDI salvo em: {caminho_arquivo}")
     except Exception as e:
         print(f"[ERRO] Falha ao salvar MIDI: {e}")
