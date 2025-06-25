@@ -151,7 +151,13 @@ class TextToMusicConverter:
         print("Música convertida com sucesso!")
 
     def Play_MIDI(self):
-        for action in self.MIDI_exe:
+         if self.config_callback:
+           cfg = self.config_callback()
+           self.music_mapper.current_instrumento = cfg['instrumento']
+         else:
+           self.music_mapper.current_instrumento = self.instrumento
+
+         for action in self.MIDI_exe:
             if action['tipo'] == 'tocar_nota':
                 if self.config_callback:
                     config = self.config_callback()
@@ -162,8 +168,12 @@ class TextToMusicConverter:
                 else:
                     bpm = self.bpm
                     volume = self.volume
-                    instrumento = self.instrumento
+                    instrumento = self.music_mapper.current_instrumento
                     nota = action['nota']
+                bpm = self.bpm
+                volume = self.volume
+                instrumento = self.music_mapper.current_instrumento
+                nota = action['nota']
 
                 self._tocar_nota(nota, bpm, volume, instrumento)
 

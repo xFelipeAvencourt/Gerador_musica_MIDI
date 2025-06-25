@@ -19,18 +19,26 @@ class InputBar:
         input_frame.pack(side=tk.LEFT)
         
         # Campo de entrada
-        self.entry = ctk.CTkEntry(
-        input_frame,
-        placeholder_text="Insira o texto aqui...",
-        corner_radius=40,
-        width=400,
-        height=56,
-        fg_color="#F5F5F5",
-        text_color="black",
-        border_width=0  
-            )
-        self.entry.pack(side=tk.LEFT)
-
+        #self.entry = ctk.CTkEntry(
+        #input_frame,
+        #placeholder_text="Insira o texto aqui...",
+        #corner_radius=40,
+        #width=400,
+        #height=56,
+        #fg_color="#F5F5F5",
+        #text_color="black",
+        #border_width=0  
+         #   )
+        #self.entry.pack(side=tk.LEFT)
+        self.textbox = ctk.CTkTextbox(
+            input_frame,
+            width=400,
+            height=20,
+            fg_color="#F5F5F5",
+            text_color="black",
+            corner_radius=16
+        )
+        self.textbox.pack(side=tk.LEFT)
         # Botão Clear Input
         clear_img = Image.open("assets/clear.png").resize((20, 20))
         self.clear_img_tk = ImageTk.PhotoImage(clear_img)
@@ -75,7 +83,7 @@ class InputBar:
 
 
     def start_play(self):
-        texto = self.entry.get()
+        texto = self.textbox.get("0.0", tk.END)
         print(f"[DEBUG] Texto inserido: '{texto}'")
         if texto.strip():
             self.is_playing = True
@@ -111,10 +119,10 @@ class InputBar:
         self.start_play()
 
     def clear_input(self):
-        self.entry.delete(0, tk.END)
+        self.textbox.delete("0.0", tk.END)
 
     def get_texto_atual(self):
-         return self.entry.get()
+          return self.textbox.get("0.0", tk.END)
 
     
 

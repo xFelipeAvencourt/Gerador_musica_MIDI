@@ -21,13 +21,13 @@ class Interface(tk.Tk):
         self.logo = Logo(self)
         self.input_bar = InputBar(self, self)
         #self.control_panel = ControlPanel(self, controller)
-        self.control_panel = ControlPanel(self, self.input_bar)
+        self.control_panel = ControlPanel(self, self)
         self.control_panel.place(relx=0.5, rely=0.65, anchor="center")  # Posiciona o painel de controle
         self.tutorial_button = TutorialButton(self, self)
         self.footer = Footer(self)
     def set_texto(self, texto):
-        self.input_bar.entry.delete(0, 'end')
-        self.input_bar.entry.insert(0, texto.strip())
+        self.input_bar.textbox.delete("0.0", tk.END)
+        self.input_bar.textbox.insert("0.0", texto)
     def get_texto_atual(self):
         return self.input_bar.entry.get()
     def get_configuracoes(self):
