@@ -256,7 +256,7 @@ def Salvar_MIDI(texto, caminho_arquivo, config):
     try:
         from midiutil.MidiFile import MIDIFile
         gerar_MIDI.midi = MIDIFile(1)
-        gerar_MIDI.midi.addTempo(0, 0, BPM_DEFAULT)
+        gerar_MIDI.midi.addTempo(0, 0, config["bpm"])
         gerar_MIDI.tempo_atual = 0
         gerar_MIDI.instrumento_atual = None  
         class FakeInfo:
