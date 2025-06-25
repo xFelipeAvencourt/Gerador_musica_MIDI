@@ -26,7 +26,7 @@ class Interface(tk.Tk):
         self.input_bar.textbox.delete("0.0", tk.END)
         self.input_bar.textbox.insert("0.0", texto)
     def get_texto_atual(self):
-        return self.input_bar.entry.get()
+           return self.input_bar.get_texto_atual()
     def get_configuracoes(self):
         return self.control_panel.get_configuracoes()
     def buscar(self, texto):
