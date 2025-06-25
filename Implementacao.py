@@ -244,7 +244,6 @@ def gerar_MIDI(acao, info):
         gerar_MIDI.canal = 0
     nota = int(acao['nota'])
     volume = info.current_volume
-    oitava = info.current_octave
     instrumento = info.current_instrumento
     canal = 0
     instrumento = getattr(info, "current_instrumento", 0)
@@ -255,7 +254,7 @@ def gerar_MIDI(acao, info):
     gerar_MIDI.midi.addNote(
         track=0,
         channel=canal,
-        pitch=nota + (oitava * 12),
+        pitch=nota,
         time=gerar_MIDI.tempo_atual,
         duration=1,
         volume=volume
@@ -278,8 +277,17 @@ def Salvar_MIDI(texto, caminho_arquivo, config):
         fake_info = FakeInfo()
         acoes = mapper.mapeamentoDaMusica(texto)
         for acao in acoes:
-           if acao['tipo'] == 'tocar_nota' and acao['nota'] is not None:
-            gerar_MIDI(acao, fake_info)
+            if acao['tipo'] == 'tocar_nota' and acao['nota'] is not None:
+                gerar_MIDI(acao, fake_info)
+            elif acao['tipo'] == 'alterar_instrumento':
+                fake_info.current_instrumento = acao['instrumento']
+            elif acao['tipo'] == 'mudar_volume':
+                fake_info.current_volume = acao['mudar_volume']
+            elif acao['tipo'] == 'mudar_oitava':
+                fake_info.current_octave = acao['mudar_oitava']
+            elif acao['tipo'] == 'mudar_BPM':
+                # Atualizar o tempo no MIDI se necessário
+                pass
         with open(caminho_arquivo, "wb") as f:
             gerar_MIDI.midi.writeFile(f)
         print(f"[SUCESSO] Arquivo MIDI salvo em: {caminho_arquivo}")
