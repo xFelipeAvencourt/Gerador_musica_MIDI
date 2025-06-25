@@ -113,5 +113,8 @@ class InputBar:
     def clear_input(self):
         self.entry.delete(0, tk.END)
 
+    def get_texto_atual(self):
+         return self.entry.get()
+
     
 
