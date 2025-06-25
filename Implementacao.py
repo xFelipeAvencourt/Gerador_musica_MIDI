@@ -128,7 +128,7 @@ class TextToMusicConverter:
         pygame.midi.init()
         self.midi_output = None
         for i in range(pygame.midi.get_count()):
-            interf, name, is_input, is_output, opened = pygame.midi.get_device_info(i)
+            is_output= pygame.midi.get_device_info(i)
             if is_output:
                 self.midi_output = pygame.midi.Output(i)
                 break

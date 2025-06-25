@@ -54,7 +54,7 @@ class InputBar:
         self.clear_button.place(x=360, y=18)
 
         # Botão PLAY
-        play_img = Image.open("assets/play.png").resize((105, 56))
+        play_img = Image.open("assets/play.png").resize((117, 56))
         self.play_img_tk = ImageTk.PhotoImage(play_img)
         self.play_button = tk.Button(
             container,
@@ -67,19 +67,17 @@ class InputBar:
         )
         self.play_button.pack(side=tk.LEFT)
 
-        # Botão PAUSE
-        pause_img = Image.open("assets/pause.png").resize((234, 48))
-        self.pause_img_tk = ImageTk.PhotoImage(pause_img)
-        self.pause_button = tk.Button(
+        reproducao_img = Image.open("assets/reproduzindo.png").resize((188, 36))
+        self.reproducao_img_tk = ImageTk.PhotoImage(reproducao_img)
+        self.reproducao_button = tk.Button(
             parent,
-            image=self.pause_img_tk,
+            image=self.reproducao_img_tk,
             bd=0,
             bg="white",
             activebackground="white",
             command=self.stop_play,
             cursor="hand2"
         )
-        self.pause_button.place(relx=0.5, rely=0.9, anchor="center")
 
 
     def start_play(self):
@@ -87,7 +85,7 @@ class InputBar:
         print(f"[DEBUG] Texto inserido: '{texto}'")
         if texto.strip():
             self.is_playing = True
-            self.pause_button.place(relx=0.5, rely=0.9, anchor="center")
+            self.reproducao_button.place(relx=0.5, rely=0.9, anchor="center")
 
         try:
             config = self.controller.get_configuracoes()
@@ -112,7 +110,7 @@ class InputBar:
 
     def stop_play(self):
         self.is_playing = False
-        self.pause_button.place_forget()
+        self.reproducao_button.place_forget()
         print("Reprodução parada")
 
     def on_click(self):
