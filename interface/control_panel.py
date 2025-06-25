@@ -230,7 +230,8 @@ class ControlPanel(tk.Frame):
                 title="Salvar arquivo MIDI"
             )
             if file_path:
-                Salvar_MIDI(texto, file_path)
+                config = self.get_configuracoes()
+                Salvar_MIDI(texto, file_path, config)
                 print(f"[Info] MIDI salvo em: {file_path}")
         except Exception as e:
             print(f"[Erro] Falha ao salvar MIDI: {e}")
