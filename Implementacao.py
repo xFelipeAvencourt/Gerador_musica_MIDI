@@ -4,12 +4,53 @@ import random
 from midiutil.MidiFile import MIDIFile
 
 
+# Constantes de configuração padrão
 VOL_DEFAULT = 50
 OITAVA_DEFAULT = 4
 BPM_DEFAULT = 60
 NUM_ACOES = 3
 LARGURA_COLUNA = 25
 
+# Constantes de volume
+VOL_MAX = 100
+VOL_MIN = 10
+VOL_INCREMENTO = 10
+
+# Constantes de oitava
+OITAVA_MAX = 8
+OITAVA_MIN = 1
+OITAVA_INCREMENTO = 1
+
+# Constantes de BPM
+BPM_MAX = 240
+BPM_INCREMENTO = 80
+
+# Constantes MIDI
+MIDI_UNIDADE = 12
+CANAL_MIDI = 0
+TRACK_MIDI = 0
+TEMPO_INICIAL = 0
+DURACAO_NOTA = 1
+
+# Constantes de tempo
+PAUSA_DURACAO = 0.25
+SEGUNDOS_POR_MINUTO = 60
+
+# Constantes de instrumentos
+INSTRUMENTO_PIANO = 0
+INSTRUMENTO_BANDONEON = 24
+INSTRUMENTO_AGOGE = 114
+
+# Constantes de notas MIDI
+NOTA_A = 9
+NOTA_B = 11
+NOTA_C = 0
+NOTA_D = 2
+NOTA_E = 4
+NOTA_F = 5
+NOTA_G = 7
+
+# Constantes de caracteres especiais
 NOTAS = ['A','B','C','D','E','F','G']
 LET_VOGAL = ['I','O','U']
 AUMENTA_OITAVA = ['.']
@@ -17,11 +58,6 @@ NL = '\n'
 SPACE = ' '
 PLUS = '+'
 MINUS = '-'
-VOL_MAX = 100
-OITAVA_MAX = 8
-BPM_MAX = 240
-uBPM = 80
-uMIDI = 12
 
 PIANO = 0
 BANDONEON = '!'
@@ -31,21 +67,21 @@ TEL_TOCANDO = 125
 class MusicMapper:
     def __init__(self):
         self.instrumentos = {
-            0: 0,
-            '!': 24,
-            ',': 114
+            0: INSTRUMENTO_PIANO,
+            '!': INSTRUMENTO_BANDONEON,
+            ',': INSTRUMENTO_AGOGE
         }
         self.NOTAS = {
-            'A': 9, 'B': 11, 'C': 0,
-            'D': 2, 'E': 4, 'F': 5, 'G': 7
+            'A': NOTA_A, 'B': NOTA_B, 'C': NOTA_C,
+            'D': NOTA_D, 'E': NOTA_E, 'F': NOTA_F, 'G': NOTA_G
         }
-        self.current_instrumento = 0
+        self.current_instrumento = INSTRUMENTO_PIANO
         self.current_octave = OITAVA_DEFAULT
         self.current_volume = VOL_DEFAULT
         self.current_BPM = BPM_DEFAULT
         self.last_char = None
 
-    def mapeamentoDaMusica(self, text):
+    def mapeamento_da_musica(self, text):
         executar = []
         i = 0
         length = len(text)
@@ -54,26 +90,26 @@ class MusicMapper:
             acao = {'tipo': None, 'nota': None, 'instrumento': None, 'mudar_volume': None, 'mudar_oitava': None, 'mudar_BPM': None}
             if char == 'B' and i + 3 < length and text[i:i+4] == 'BPM+':
                 acao['tipo'] = 'mudar_BPM'
-                self.current_BPM = min(self.current_BPM + uBPM, BPM_MAX)
+                self.current_BPM = min(self.current_BPM + BPM_INCREMENTO, BPM_MAX)
                 acao['mudar_BPM'] = self.current_BPM
                 i += 3
             elif char in self.NOTAS or char.upper() in self.NOTAS:
                 acao['tipo'] = 'tocar_nota'
-                acao['nota'] = self.NOTAS[char.upper()] + (self.current_octave * uMIDI)
+                acao['nota'] = self.NOTAS[char.upper()] + (self.current_octave * MIDI_UNIDADE)
             elif char == SPACE:
                 acao['tipo'] = 'pausa'
             elif char == PLUS:
                 acao['tipo'] = 'mudar_volume'
-                self.current_volume = min(self.current_volume + 10, VOL_MAX)
+                self.current_volume = min(self.current_volume + VOL_INCREMENTO, VOL_MAX)
                 acao['mudar_volume'] = self.current_volume
             elif char == MINUS:
                 acao['tipo'] = 'mudar_volume'
-                self.current_volume = max(self.current_volume - 10, 10)
+                self.current_volume = max(self.current_volume - VOL_INCREMENTO, VOL_MIN)
                 acao['mudar_volume'] = self.current_volume
             elif char in LET_VOGAL or char.upper() in LET_VOGAL:
                 if self.last_char and self.last_char.upper() in self.NOTAS:
                     acao['tipo'] = 'tocar_nota'
-                    acao['nota'] = self.NOTAS[self.last_char.upper()] + (self.current_octave * uMIDI)
+                    acao['nota'] = self.NOTAS[self.last_char.upper()] + (self.current_octave * MIDI_UNIDADE)
                 else:
                     acao['tipo'] = 'tocar_nota'
                     acao['nota'] = TEL_TOCANDO
@@ -81,17 +117,17 @@ class MusicMapper:
                 next_char = text[i + 1]
                 if next_char == '+':
                     acao['tipo'] = 'mudar_oitava'
-                    self.current_octave = min(self.current_octave + 1, OITAVA_MAX)
+                    self.current_octave = min(self.current_octave + OITAVA_INCREMENTO, OITAVA_MAX)
                     acao['mudar_oitava'] = self.current_octave
                     i += 1
                 elif next_char == '-':
                     acao['tipo'] = 'mudar_oitava'
-                    self.current_octave = max(self.current_octave - 1, 1)
+                    self.current_octave = max(self.current_octave - OITAVA_INCREMENTO, OITAVA_MIN)
                     acao['mudar_oitava'] = self.current_octave
                     i += 1
             elif char == '?':
                 acao['tipo'] = 'tocar_nota'
-                acao['nota'] = random.choice(list(self.NOTAS.values())) + (random.randint(1, OITAVA_MAX - 1) * uMIDI)
+                acao['nota'] = random.choice(list(self.NOTAS.values())) + (random.randint(OITAVA_MIN, OITAVA_MAX - 1) * MIDI_UNIDADE)
             elif char == ';':
                 acao['tipo'] = 'mudar_BPM'
                 self.current_BPM = random.randint(BPM_DEFAULT, BPM_MAX)
@@ -102,7 +138,7 @@ class MusicMapper:
             elif char == BANDONEON:
                 acao['tipo'] = 'alterar_instrumento'
                 acao['instrumento'] = self.instrumentos['!']
-            elif char.isdigit() and Is_even(int(char)):
+            elif char.isdigit() and is_even(int(char)):
                 acao['tipo'] = 'alterar_instrumento'
                 acao['instrumento'] = (self.current_instrumento + int(char)) % len(self.instrumentos)
             elif char == AGOGE:
@@ -111,7 +147,7 @@ class MusicMapper:
             else:
                 if self.last_char and self.last_char.upper() in self.NOTAS:
                     acao['tipo'] = 'tocar_nota'
-                    acao['nota'] = self.NOTAS[self.last_char.upper()] + (self.current_octave * uMIDI)
+                    acao['nota'] = self.NOTAS[self.last_char.upper()] + (self.current_octave * MIDI_UNIDADE)
                 else:
                     acao['tipo'] = 'pausa'
 
@@ -144,14 +180,14 @@ class TextToMusicConverter:
         self.config_callback = config_callback
         self.on_playback_finished = on_playback_finished
         
-    def ConverterMusica(self, text):
-        self.MIDI_exe = self.music_mapper.mapeamentoDaMusica(text)
-        print(f"[DEBUG] ConverterMusica recebeu: '{text}'")
+    def converter_musica(self, text):
+        self.MIDI_exe = self.music_mapper.mapeamento_da_musica(text)
+        print(f"[DEBUG] converter_musica recebeu: '{text}'")
         string_acoes = gerar_string_acoes(self.MIDI_exe)
-        Arquivo('MIDI_gerado.txt', 'w', string_acoes)
+        arquivo('MIDI_gerado.txt', 'w', string_acoes)
         print("Música convertida com sucesso!")
 
-    def Play_MIDI(self):
+    def play_midi(self):
          if self.config_callback:
            cfg = self.config_callback()
            self.music_mapper.current_instrumento = cfg['instrumento']
@@ -180,7 +216,7 @@ class TextToMusicConverter:
                     self._tocar_nota(nota, bpm, volume, instrumento)
 
                 elif action['tipo'] == 'pausa':
-                    time.sleep(0.25)
+                    time.sleep(PAUSA_DURACAO)
                 elif action['tipo'] == 'alterar_instrumento':
                     self.music_mapper.current_instrumento = action['instrumento']
                 elif action['tipo'] == 'mudar_volume':
@@ -197,13 +233,13 @@ class TextToMusicConverter:
         
        # instrumento = self.music_mapper.current_instrumento
         #volume = self.music_mapper.current_volume
-        canal = 0  
+        canal = CANAL_MIDI  
 
         print(f"[DEBUG] Tocando nota={nota}, instrumento={instrumento}, volume={volume}, bpm={bpm}")
     
         self.midi_output.set_instrument(instrumento, canal)
         self.midi_output.note_on(nota, volume, canal)
-        time.sleep(60 / bpm)
+        time.sleep(SEGUNDOS_POR_MINUTO / bpm)
         self.midi_output.note_off(nota, volume, canal)
 
 
@@ -218,9 +254,9 @@ class TextToMusicConverter:
         except Exception as e:
             print(f"[AVISO] Erro ao finalizar pygame.midi: {e}")
 
-def Is_even(n): return n & 1 == 0
+def is_even(n): return n & 1 == 0
 
-def Arquivo(arquivo, modo='r', conteudo=None):
+def arquivo(arquivo, modo='r', conteudo=None):
     try:
         if modo == 'r':
             with open(arquivo, 'r') as f: return f.read()
@@ -232,7 +268,7 @@ def Arquivo(arquivo, modo='r', conteudo=None):
 def gerar_string_acoes(acoes):
     chaves = ['nota', 'instrumento', 'mudar_volume', 'mudar_oitava', 'mudar_BPM']
     linhas = []
-    for grupo in [acoes[i:i+3] for i in range(0, len(acoes), 3)]:
+    for grupo in [acoes[i:i+NUM_ACOES] for i in range(0, len(acoes), NUM_ACOES)]:
         partes = []
         for acao in grupo:
             texto = f"{acao['tipo']}:{next((acao.get(k, '') for k in chaves if k in acao), '')}".rstrip(':')
@@ -240,38 +276,38 @@ def gerar_string_acoes(acoes):
         linhas.append(" | ".join(partes))
     return "\n".join(linhas)
 
-def gerar_MIDI(acao, info):
-    if not hasattr(gerar_MIDI, "midi"):
-        gerar_MIDI.midi = MIDIFile(1)
-        gerar_MIDI.midi.addTempo(0, 0, BPM_DEFAULT)
-        gerar_MIDI.tempo_atual = 0
-        gerar_MIDI.instrumento_atual = None  
-        gerar_MIDI.canal = 0
+def gerar_midi(acao, info):
+    if not hasattr(gerar_midi, "midi"):
+        gerar_midi.midi = MIDIFile(1)
+        gerar_midi.midi.addTempo(TRACK_MIDI, CANAL_MIDI, BPM_DEFAULT)
+        gerar_midi.tempo_atual = TEMPO_INICIAL
+        gerar_midi.instrumento_atual = None  
+        gerar_midi.canal = CANAL_MIDI
     nota = int(acao['nota'])
     volume = info.current_volume
     instrumento = info.current_instrumento
-    canal = 0
-    instrumento = getattr(info, "current_instrumento", 0)
-    if gerar_MIDI.instrumento_atual != instrumento:
-        gerar_MIDI.midi.addProgramChange(0, canal, gerar_MIDI.tempo_atual, instrumento)
-        gerar_MIDI.instrumento_atual = instrumento
+    canal = CANAL_MIDI
+    instrumento = getattr(info, "current_instrumento", INSTRUMENTO_PIANO)
+    if gerar_midi.instrumento_atual != instrumento:
+        gerar_midi.midi.addProgramChange(TRACK_MIDI, canal, gerar_midi.tempo_atual, instrumento)
+        gerar_midi.instrumento_atual = instrumento
 
-    gerar_MIDI.midi.addNote(
-        track=0,
+    gerar_midi.midi.addNote(
+        track=TRACK_MIDI,
         channel=canal,
         pitch=nota,
-        time=gerar_MIDI.tempo_atual,
-        duration=1,
+        time=gerar_midi.tempo_atual,
+        duration=DURACAO_NOTA,
         volume=volume
     )
-    gerar_MIDI.tempo_atual += 1
+    gerar_midi.tempo_atual += 1
 
-def Salvar_MIDI(texto, caminho_arquivo, config):
+def salvar_midi(texto, caminho_arquivo, config):
     try:
-        gerar_MIDI.midi = MIDIFile(1)
-        gerar_MIDI.midi.addTempo(0, 0, config["bpm"])
-        gerar_MIDI.tempo_atual = 0
-        gerar_MIDI.instrumento_atual = None  
+        gerar_midi.midi = MIDIFile(1)
+        gerar_midi.midi.addTempo(TRACK_MIDI, CANAL_MIDI, config["bpm"])
+        gerar_midi.tempo_atual = TEMPO_INICIAL
+        gerar_midi.instrumento_atual = None  
         class FakeInfo:
             def __init__(self):
                 self.current_volume = config["volume"]
@@ -279,10 +315,10 @@ def Salvar_MIDI(texto, caminho_arquivo, config):
                 self.current_instrumento = config["instrumento"]
         mapper = MusicMapper()
         fake_info = FakeInfo()
-        acoes = mapper.mapeamentoDaMusica(texto)
+        acoes = mapper.mapeamento_da_musica(texto)
         for acao in acoes:
             if acao['tipo'] == 'tocar_nota' and acao['nota'] is not None:
-                gerar_MIDI(acao, fake_info)
+                gerar_midi(acao, fake_info)
             elif acao['tipo'] == 'alterar_instrumento':
                 fake_info.current_instrumento = acao['instrumento']
             elif acao['tipo'] == 'mudar_volume':
@@ -293,7 +329,7 @@ def Salvar_MIDI(texto, caminho_arquivo, config):
                 # Atualizar o tempo no MIDI se necessário
                 pass
         with open(caminho_arquivo, "wb") as f:
-            gerar_MIDI.midi.writeFile(f)
+            gerar_midi.midi.writeFile(f)
         print(f"[SUCESSO] Arquivo MIDI salvo em: {caminho_arquivo}")
     except Exception as e:
         print(f"[ERRO] Falha ao salvar MIDI: {e}")

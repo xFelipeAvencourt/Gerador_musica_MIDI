@@ -216,7 +216,7 @@ class ControlPanel(tk.Frame):
     def save_midi(self):
         try:
             from tkinter import filedialog
-            from Implementacao import Salvar_MIDI
+            from Implementacao import salvar_midi
             
             # Pegar o texto do input_bar através do controller
             texto = self.controller.get_texto_atual()
@@ -231,7 +231,7 @@ class ControlPanel(tk.Frame):
             )
             if file_path:
                 config = self.get_configuracoes()
-                Salvar_MIDI(texto, file_path, config)
+                salvar_midi(texto, file_path, config)
                 print(f"[Info] MIDI salvo em: {file_path}")
         except Exception as e:
             print(f"[Erro] Falha ao salvar MIDI: {e}")

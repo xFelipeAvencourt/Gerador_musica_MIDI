@@ -95,9 +95,9 @@ class InputBar:
             )
 
             def tocar():
-                 musica.ConverterMusica(texto)
+                 musica.converter_musica(texto)
                  if self.is_playing:
-                        musica.Play_MIDI()
+                        musica.play_midi()
                         print("Reprodução iniciada")
 
             threading.Thread(target=tocar, daemon=True).start()
