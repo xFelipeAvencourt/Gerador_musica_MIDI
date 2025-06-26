@@ -59,27 +59,27 @@ def salvar_midi(texto, caminho_arquivo, config):
         gerar_midi.tempo_atual = TEMPO_INICIAL
         gerar_midi.instrumento_atual = None  
         
-        class FakeInfo:
-            def __init__(self):
-                self.current_volume = config["volume"]
-                self.current_octave = OITAVA_DEFAULT 
-                self.current_instrumento = config["instrumento"]
+        current_volume = config["volume"]
+        current_octave = OITAVA_DEFAULT 
+        current_instrumento = config["instrumento"]
         
         mapper = MusicMapper()
-        fake_info = FakeInfo()
         acoes = mapper.mapeamento_da_musica(texto)
         
         for acao in acoes:
             if acao['tipo'] == 'tocar_nota' and acao['nota'] is not None:
-                gerar_midi(acao, fake_info)
+                info_temp = type('Info', (), {
+                    'current_volume': current_volume,
+                    'current_instrumento': current_instrumento
+                })()
+                gerar_midi(acao, info_temp)
             elif acao['tipo'] == 'alterar_instrumento':
-                fake_info.current_instrumento = acao['instrumento']
+                current_instrumento = acao['instrumento']
             elif acao['tipo'] == 'mudar_volume':
-                fake_info.current_volume = acao['mudar_volume']
+                current_volume = acao['mudar_volume']
             elif acao['tipo'] == 'mudar_oitava':
-                fake_info.current_octave = acao['mudar_oitava']
+                current_octave = acao['mudar_oitava']
             elif acao['tipo'] == 'mudar_BPM':
-                # Atualizar o tempo no MIDI se necessário
                 pass
         
         with open(caminho_arquivo, "wb") as f:
