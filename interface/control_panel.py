@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
-from Implementacao import salvar_midi
+from utils import salvar_midi
 
 class ControlPanel(tk.Frame):
     def __init__(self, parent, controller):

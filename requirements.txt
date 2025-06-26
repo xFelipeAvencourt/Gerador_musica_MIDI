@@ -3,3 +3,4 @@ darkdetect==0.8.0
 packaging==25.0
 pillow==11.2.1
 pygame==2.6.0
+midiutil==1.2.1

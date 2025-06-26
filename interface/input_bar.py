@@ -3,7 +3,7 @@ import time
 import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
-from Implementacao import TextToMusicConverter
+from text_to_music_converter import TextToMusicConverter
 
 
 class InputBar:
