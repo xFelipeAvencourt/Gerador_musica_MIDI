@@ -1,6 +1,6 @@
-import pygame.midi
-import time
 import random
+import time
+import pygame.midi
 from midiutil.MidiFile import MIDIFile
 
 

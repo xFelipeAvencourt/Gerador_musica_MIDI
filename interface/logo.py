@@ -1,5 +1,5 @@
-from PIL import Image, ImageTk
 import tkinter as tk
+from PIL import Image, ImageTk
 
 class Logo:
     def __init__(self, parent):

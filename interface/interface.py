@@ -1,10 +1,10 @@
 import tkinter as tk
+import pygame
 from interface.logo import Logo
 from interface.input_bar import InputBar
 from interface.tutorial_button import TutorialButton
 from interface.footer import Footer
 from interface.control_panel import ControlPanel
-import pygame
 
 class Interface(tk.Tk):
     def __init__(self):

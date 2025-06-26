@@ -1,9 +1,9 @@
+import threading
+import time
 import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
 from Implementacao import TextToMusicConverter
-import threading
-import time
 
 
 class InputBar:

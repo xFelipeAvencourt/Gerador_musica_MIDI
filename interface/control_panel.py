@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
-from tkinter import filedialog
+from Implementacao import salvar_midi
 
 class ControlPanel(tk.Frame):
     def __init__(self, parent, controller):
@@ -215,9 +215,6 @@ class ControlPanel(tk.Frame):
 
     def save_midi(self):
         try:
-            from tkinter import filedialog
-            from Implementacao import salvar_midi
-            
             # Pegar o texto do input_bar através do controller
             texto = self.controller.get_texto_atual()
             if not texto or not texto.strip():
