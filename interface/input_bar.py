@@ -69,14 +69,10 @@ class InputBar:
 
         reproducao_img = Image.open("assets/reproduzindo.png").resize((188, 36))
         self.reproducao_img_tk = ImageTk.PhotoImage(reproducao_img)
-        self.reproducao_button = tk.Button(
+        self.reproducao_label = tk.Label(
             parent,
             image=self.reproducao_img_tk,
-            bd=0,
-            bg="white",
-            activebackground="white",
-            command=self.stop_play,
-            cursor="hand2"
+            bg="white"
         )
 
 
@@ -85,7 +81,7 @@ class InputBar:
         print(f"[DEBUG] Texto inserido: '{texto}'")
         if texto.strip():
             self.is_playing = True
-            self.reproducao_button.place(relx=0.5, rely=0.9, anchor="center")
+            self.reproducao_label.place(relx=0.5, rely=0.9, anchor="center")
 
         try:
             config = self.controller.get_configuracoes()
@@ -94,23 +90,34 @@ class InputBar:
                 bpm=config["bpm"],
                 instrumento=config["instrumento"],
                 volume=config["volume"],
-                config_callback=self.controller.get_configuracoes
+                config_callback=self.controller.get_configuracoes,
+                on_playback_finished=self.on_playback_finished
             )
 
             def tocar():
                  musica.ConverterMusica(texto)
                  if self.is_playing:
                         musica.Play_MIDI()
-                        print("Reprodução iniciada ou interrompida")
+                        print("Reprodução iniciada")
 
             threading.Thread(target=tocar, daemon=True).start()
 
         except Exception as e:
             print(f"[Erro] Falha ao executar: {e}")
 
+    def on_playback_finished(self):
+        """Callback chamado quando a reprodução MIDI termina"""
+        if self.is_playing:
+            self.parent.after(0, self.hide_reproducao)
+
+    def hide_reproducao(self):
+        self.is_playing = False
+        self.reproducao_label.place_forget()
+        print("Reprodução finalizada - imagem removida")
+
     def stop_play(self):
         self.is_playing = False
-        self.reproducao_button.place_forget()
+        self.reproducao_label.place_forget()
         print("Reprodução parada")
 
     def on_click(self):

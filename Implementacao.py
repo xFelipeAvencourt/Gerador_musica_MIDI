@@ -124,7 +124,7 @@ class MusicMapper:
         return executar
 
 class TextToMusicConverter:
-    def __init__(self, bpm, volume, instrumento, config_callback=None):
+    def __init__(self, bpm, volume, instrumento, config_callback=None, on_playback_finished=None):
         pygame.midi.init()
         self.midi_output = None
         for i in range(pygame.midi.get_count()):
@@ -142,6 +142,7 @@ class TextToMusicConverter:
         self.bpm = bpm
         self.MIDI_exe = None
         self.config_callback = config_callback
+        self.on_playback_finished = on_playback_finished
         
     def ConverterMusica(self, text):
         self.MIDI_exe = self.music_mapper.mapeamentoDaMusica(text)
@@ -157,36 +158,40 @@ class TextToMusicConverter:
          else:
            self.music_mapper.current_instrumento = self.instrumento
 
-         for action in self.MIDI_exe:
-            if action['tipo'] == 'tocar_nota':
-                if self.config_callback:
-                    config = self.config_callback()
-                    bpm = self.bpm  
-                    volume = self.volume  
-                    instrumento = config['instrumento']
-                    nota = action['nota']
-                else:
+         try:
+             for action in self.MIDI_exe:
+                if action['tipo'] == 'tocar_nota':
+                    if self.config_callback:
+                        config = self.config_callback()
+                        bpm = self.bpm  
+                        volume = self.volume  
+                        instrumento = config['instrumento']
+                        nota = action['nota']
+                    else:
+                        bpm = self.bpm
+                        volume = self.volume
+                        instrumento = self.music_mapper.current_instrumento
+                        nota = action['nota']
                     bpm = self.bpm
                     volume = self.volume
                     instrumento = self.music_mapper.current_instrumento
                     nota = action['nota']
-                bpm = self.bpm
-                volume = self.volume
-                instrumento = self.music_mapper.current_instrumento
-                nota = action['nota']
 
-                self._tocar_nota(nota, bpm, volume, instrumento)
+                    self._tocar_nota(nota, bpm, volume, instrumento)
 
-            elif action['tipo'] == 'pausa':
-                time.sleep(0.25)
-            elif action['tipo'] == 'alterar_instrumento':
-                self.music_mapper.current_instrumento = action['instrumento']
-            elif action['tipo'] == 'mudar_volume':
-                self.volume = action['mudar_volume']
-            elif action['tipo'] == 'mudar_oitava':
-                self.music_mapper.current_octave = action['mudar_oitava']
-            elif action['tipo'] == 'mudar_BPM':
-                self.bpm = action['mudar_BPM']
+                elif action['tipo'] == 'pausa':
+                    time.sleep(0.25)
+                elif action['tipo'] == 'alterar_instrumento':
+                    self.music_mapper.current_instrumento = action['instrumento']
+                elif action['tipo'] == 'mudar_volume':
+                    self.volume = action['mudar_volume']
+                elif action['tipo'] == 'mudar_oitava':
+                    self.music_mapper.current_octave = action['mudar_oitava']
+                elif action['tipo'] == 'mudar_BPM':
+                    self.bpm = action['mudar_BPM']
+         finally:
+             if self.on_playback_finished:
+                 self.on_playback_finished()
 
     def _tocar_nota(self, nota, bpm, volume, instrumento):
         
@@ -263,7 +268,6 @@ def gerar_MIDI(acao, info):
 
 def Salvar_MIDI(texto, caminho_arquivo, config):
     try:
-        from midiutil.MidiFile import MIDIFile
         gerar_MIDI.midi = MIDIFile(1)
         gerar_MIDI.midi.addTempo(0, 0, config["bpm"])
         gerar_MIDI.tempo_atual = 0
