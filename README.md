@@ -1,4 +1,4 @@
-# Trabalho final TCP
+# Trabalho final TCP - Gerador de musica MIDI
 
 ## Como rodar o projeto?
 
